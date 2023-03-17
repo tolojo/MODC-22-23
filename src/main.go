@@ -3,6 +3,7 @@ package main
 import (
 	bytes2 "bytes"
 	"crypto/tls"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -10,12 +11,11 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"time"
 
-	"example.com/packages/util"
+	_ "github.com/lib/pq"
 )
 
 type FileName struct {
@@ -32,6 +32,12 @@ type Data struct {
 	URL      string
 }
 
+type User struct {
+	nome     string
+	email    string
+	password string
+}
+
 func main() {
 	ipServerPub := "https://10.72.251.147:8443"
 	ipServerSecure := "https://192.168.1.119:8443"
@@ -39,7 +45,7 @@ func main() {
 	fs := http.FileServer(http.Dir("./securityCopy"))
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	welcome := Welcome{"ola", time.Now().Format(time.Stamp)}
-	template := template.Must(template.ParseFiles("template/login.html", "template/template.html"))
+	template := template.Must(template.ParseFiles("template/template.html"))
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -57,6 +63,58 @@ func main() {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 		}
 	})
+
+	db, err := sql.Open("postgres", "postgres://postgres:1234@localhost/?sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec("CREATE DATABASE modc")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	db, err = sql.Open("postgres", "postgres://postgres:1234@localhost/modc?sslmode=disable")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	_, err = db.Exec(`
+CREATE TABLE Utilizadores (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(255),
+    email VARCHAR(255),
+    password VARCHAR(255)
+)
+`)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Register a new user
+	newUser := User{
+		nome:     "John Doe",
+		email:    "johndoe@example.com",
+		password: "password123",
+	}
+	registerUser(db, newUser)
+
+	// Log in an existing user
+	existingUser := User{
+		email:    "johndoe@example.com",
+		password: "password123",
+	}
+	loggedIn, err := loginUser(db, existingUser)
+	if err != nil {
+		panic(err)
+	}
+	if loggedIn {
+		fmt.Println("User logged in successfully")
+	} else {
+		fmt.Println("Incorrect email or password")
+	}
 
 	http.HandleFunc("/save", func(w http.ResponseWriter, response *http.Request) {
 
@@ -82,8 +140,6 @@ func main() {
 
 		log.Printf("%+v", data.download("securityCopy/"))
 
-		sha256text := util.Sha256conv(fileResponse.Name)
-		log.Println(sha256text)
 		w.WriteHeader(http.StatusOK)
 		requestBody, err := json.Marshal(map[string]string{"name": data.fileName})
 		serverResp, err := http.Post(ipServerSecure+"/save", "application/json", bytes2.NewBuffer(requestBody))
@@ -116,35 +172,6 @@ func main() {
 
 		data.download("temp/")
 
-		comparison := util.Sha256Comparison(fileResponse.Name)
-		log.Printf("%+v", comparison)
-		e := os.Remove("temp/" + fileResponse.Name)
-		if e != nil {
-		}
-		if !comparison {
-			body := &bytes2.Buffer{}
-			writer := multipart.NewWriter(body)
-			fw, err := writer.CreateFormFile("myFile", fileResponse.Name)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			myFile, err := os.Open("securityCopy/" + fileResponse.Name)
-			if err != nil {
-				log.Fatal(err)
-			}
-			_, err = io.Copy(fw, myFile)
-			writer.Close()
-
-			req, err := http.NewRequest("POST", ipServerPub+"/upload", bytes2.NewReader(body.Bytes()))
-			req.Header.Set("Content-Type", writer.FormDataContentType())
-			client := &http.Client{}
-			rsp, _ := client.Do(req)
-			if rsp.StatusCode != http.StatusOK {
-				log.Printf("Request Failed with response: %d", rsp.StatusCode)
-			}
-		}
-
 	})
 
 	http.HandleFunc("/retrieve", func(w http.ResponseWriter, response *http.Request) {
@@ -170,10 +197,6 @@ func main() {
 		}
 
 		log.Printf("%+v", data.download("securityCopy/"))
-
-		sha256text := util.Sha256conv(fileResponse.Name)
-		log.Println(sha256text)
-		w.WriteHeader(http.StatusOK)
 
 	})
 
@@ -208,4 +231,20 @@ func (data *Data) download(Dir string) error {
 	}
 
 	return nil
+}
+
+func registerUser(db *sql.DB, user User) {
+	_, err := db.Exec("INSERT INTO utilizadores (nome, email, password) VALUES ($1, $2, $3)", user.nome, user.email, user.password)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func loginUser(db *sql.DB, user User) (bool, error) {
+	var count int
+	err := db.QueryRow("SELECT COUNT(*) FROM utilizadores WHERE email = $1 AND password = $2", user.email, user.password).Scan(&count)
+	if err != nil {
+		return false, err
+	}
+	return count == 1, nil
 }
