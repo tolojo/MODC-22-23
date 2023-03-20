@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login and Register</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="javascripts/login.js"></script>
+</head>
+<body>
+  <h1>Formulário de Login e Registro</h1>
+  <h2>Login</h2>
+  <form>
+    <label for="username">User name:</label>
+    <input type="text" id="username" placeholder="username" required><br><br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="password" required><br><br>
+    <p> <button type="button" onclick="login()">Login</button></p>
+    <p id="msg"></p>
+  </form>
+
+  <h2>Register</h2>
+  <form>
+    <label for="new-username">New User:</label>
+    <input type="text" id="new-username" placeholder="new-username" required><br><br>
+    <label for="new-username">Email:</label>
+    <input type="email" id="email" placeholder="email" required><br><br>
+    <label for="new-password">Password:</label>
+    <input type="password" id="new-password" placeholder="new-password" required><br><br>
+    <p> <button type="button" onclick="addUser()">Register</button></p>
+    <p id="msg1"></p>
+  </form>
+</body>
+</html>
