@@ -11,6 +11,7 @@ async function login() {
             data: JSON.stringify(obj),
             contentType: 'application/json'
         });
+        window.location.href="files.html"
     } catch (err) {
         document.getElementById("msg").innerHTML = html;
     }
