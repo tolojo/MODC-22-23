@@ -1,0 +1,29 @@
+body {
+    padding: 50px;
+    font: 16px "Lucida Grande", Helvetica, Arial, sans-serif;
+    background-color: azure;
+    align-items: center;
+}
+
+div{
+    background-color: rgb(230, 230, 230);
+    border-radius: 5px;
+    width: 760px;
+    padding: 20px;
+    display: inline-block;
+}
+
+button{
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 30px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+}
+
+section{
+    width: 800px;
+}
