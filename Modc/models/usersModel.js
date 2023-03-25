@@ -1,9 +1,12 @@
+const res = require("express/lib/response");
 var pool = require("./connection");
 
 module.exports.login = async function (nome, password) {
     try {
-        let sql = "Select * from utilizadores where use_nome = $1 and use_password = $2";
-        let result = await pool.query(sql, [nome, password]);
+        let sql = "Select * from utilizadores where use_nome = '"+nome+"' and use_password = '"+password+"'";
+        console.log(sql)
+        let result = await pool.query(sql);
+        console.log(result.rows)
         if (result.rows.length > 0)
             return {
                 status: 200,
