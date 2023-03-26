@@ -3,7 +3,7 @@ const pg = require('pg');
 let pool = new pg.Pool({
     user: 'postgres',/*  mudar para o nome */
     host: 'localhost',
-    password: 'postgres',/* mudar a pass */
+    password: '1234',/* mudar a pass */
     port: 5432,
     ssl: false
 });
@@ -21,7 +21,7 @@ pool.connect((err, client, done) => {
             user: 'postgres',/*  mudar para o nome */
             host: 'localhost',
             database: 'modc',
-            password: 'postgres',/* mudar a pass */
+            password: '1234',/* mudar a pass */
             port: 5432,
             ssl: false
         });
@@ -48,7 +48,7 @@ pool.connect((err, client, done) => {
     });
   }
 
-  const connectionString = "postgres://postgres:postgres@localhost:5432/modc"/*  mudar tambem o nome e a pass*/
+  const connectionString = "postgres://postgres:1234@localhost:5432/modc"/*  mudar tambem o nome e a pass*/
     const Pool = pg.Pool
     pool = new Pool({
     connectionString,
