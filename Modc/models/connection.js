@@ -1,9 +1,12 @@
 const pg = require('pg');
 
+let usr = 'postgres';   // CHANGE THIS PARAMETER TO DB USER
+let passwd = 'postgres'; // CHANGE THIS PARAMETER TO DB PASSWORD
+
 let pool = new pg.Pool({
-    user: 'postgres',/*  mudar para o nome */
+    user: usr,
     host: 'localhost',
-    password: '1234',/* mudar a pass */
+    password: passwd,
     port: 5432,
     ssl: false
 });
@@ -18,10 +21,10 @@ pool.connect((err, client, done) => {
       } else {
         console.log('Base de dados criada!'); 
         pool = new pg.Pool({
-            user: 'postgres',/*  mudar para o nome */
+            user: usr,/*  mudar para o nome */
             host: 'localhost',
             database: 'modc',
-            password: '1234',/* mudar a pass */
+            password: passwd,/* mudar a pass */
             port: 5432,
             ssl: false
         });
@@ -43,17 +46,15 @@ pool.connect((err, client, done) => {
       } else {
         console.log('Tabela criada com sucesso!');
       }
-  
       pool.end();
     });
   }
 
-  const connectionString = "postgres://postgres:1234@localhost:5432/modc"/*  mudar tambem o nome e a pass*/
+  const connectionString = "postgres://"+usr+":"+passwd+"@localhost:5432/modc"/*  mudar tambem o nome e a pass*/
     const Pool = pg.Pool
     pool = new Pool({
     connectionString,
-    max: 10,
-    
+    max: 10,  
 })
 
   
