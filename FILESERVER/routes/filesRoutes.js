@@ -1,6 +1,6 @@
 // Requiring express to handle routing
 const express = require("express");
-  
+var path = require('path');
 // The fileUpload npm package for handling
 // file upload functionality
 const fileUpload = require("express-fileupload");
@@ -11,6 +11,12 @@ var cache_file_name;
   
 // Passing fileUpload as a middleware
 router.use(fileUpload());
+
+router.get("/", function(req,res){
+  
+  res.sendFile(path.join(__dirname+"/../public/files.html"));
+
+})
   
 // For handling the upload request
 router.post("/upload", function (req, res) {

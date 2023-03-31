@@ -1,7 +1,7 @@
 const pg = require('pg');
 
 let usr = 'postgres';   // CHANGE THIS PARAMETER TO DB USER
-let passwd = 'rafa123'; // CHANGE THIS PARAMETER TO DB PASSWORD
+let passwd = 'postgres'; // CHANGE THIS PARAMETER TO DB PASSWORD
 
 let pool = new pg.Pool({
     user: usr,
