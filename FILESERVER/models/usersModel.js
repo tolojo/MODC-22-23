@@ -1,5 +1,6 @@
 const res = require("express/lib/response");
 var pool = require("./connection");
+const uuid = require("uuid");
 
 module.exports.login = async function (nome, password) {
     try {
@@ -7,12 +8,14 @@ module.exports.login = async function (nome, password) {
         console.log(sql)
         let result = await pool.query(sql);
         console.log(result.rows)
-        if (result.rows.length > 0)
+        if (result.rows.length > 0){
+            let sessionToken = uuid.v4();
+            console.log(sessionToken)
             return {
                 status: 200,
                 result: result.rows[0]
             };
-        else return {
+        }else return {
             status: 401,
             result: {
                 msg: "Nome ou password incorreta"
